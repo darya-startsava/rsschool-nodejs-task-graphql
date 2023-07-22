@@ -42,7 +42,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
               return prisma.post.findMany();
             },
           },
-          profile: {
+          profiles: {
             type: new GraphQLList(Profile),
             args: {},
             resolve: () => {
@@ -54,11 +54,12 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
       const schema = new GraphQLSchema({ query: Query });
 
-      return await graphql({
+      const result = await graphql({
         schema,
         source: req.body.query,
         variableValues: req.body.variables,
       });
+      return result;
     },
   });
 };
