@@ -1,14 +1,8 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { createGqlResponseSchema, gqlResponseSchema } from './schemas.js';
-import {
-  graphql,
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLFloat,
-  GraphQLInt,
-  GraphQLSchema,
-  GraphQLList,
-} from 'graphql';
+import { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList } from 'graphql';
+import { User } from './types/user.js';
+import { MemberType } from './types/memberType.js';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   const { prisma } = fastify;
@@ -22,24 +16,6 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       },
     },
     async handler(req) {
-      const User = new GraphQLObjectType({
-        name: 'User',
-        fields: {
-          id: { type: GraphQLString },
-          name: { type: GraphQLString },
-          balance: { type: GraphQLFloat },
-        },
-      });
-
-      const MemberType = new GraphQLObjectType({
-        name: 'MemberType',
-        fields: {
-          id: { type: GraphQLString },
-          discount: { type: GraphQLFloat },
-          postsLimitPerMonth: { type: GraphQLInt },
-        },
-      });
-
       const Query = new GraphQLObjectType({
         name: 'Query',
         fields: {
