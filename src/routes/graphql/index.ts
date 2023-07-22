@@ -1,6 +1,14 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { createGqlResponseSchema, gqlResponseSchema } from './schemas.js';
-import { graphql, buildSchema } from 'graphql';
+import {
+  graphql,
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLFloat,
+  GraphQLInt,
+  GraphQLSchema,
+  GraphQLList,
+} from 'graphql';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   const { prisma } = fastify;
@@ -14,37 +22,49 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       },
     },
     async handler(req) {
-      const schema = buildSchema(`
-        type User {
-          id: String!
-          name: String
-          balance: Float
-        }
-        type MemberType {
-          id: String!
-          discount: Float
-          postsLimitPerMonth: Int
-        }
-        type Query {
-          users: [User!]!
-          memberTypes: [MemberType!]!
-        }
-        
-      `);
+      const User = new GraphQLObjectType({
+        name: 'User',
+        fields: {
+          id: { type: GraphQLString },
+          name: { type: GraphQLString },
+          balance: { type: GraphQLFloat },
+        },
+      });
 
-      const rootValue = {
-        users: () => {
-          return prisma.user.findMany();
+      const MemberType = new GraphQLObjectType({
+        name: 'MemberType',
+        fields: {
+          id: { type: GraphQLString },
+          discount: { type: GraphQLFloat },
+          postsLimitPerMonth: { type: GraphQLInt },
         },
-        memberTypes: () => {
-          return prisma.memberType.findMany();
+      });
+
+      const Query = new GraphQLObjectType({
+        name: 'Query',
+        fields: {
+          users: {
+            type: new GraphQLList(User),
+            args: {},
+            resolve: () => {
+              return prisma.user.findMany();
+            },
+          },
+          memberTypes: {
+            type: new GraphQLList(MemberType),
+            args: {},
+            resolve: () => {
+              return prisma.memberType.findMany();
+            },
+          },
         },
-      };
+      });
+
+      const schema = new GraphQLSchema({ query: Query });
 
       return await graphql({
         schema,
         source: req.body.query,
-        rootValue,
         variableValues: req.body.variables,
       });
     },
