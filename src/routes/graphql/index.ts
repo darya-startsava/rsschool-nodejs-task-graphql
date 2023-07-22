@@ -20,8 +20,14 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
           name: String
           balance: Float
         }
+        type MemberType {
+          id: String!
+          discount: Float
+          postsLimitPerMonth: Int
+        }
         type Query {
           users: [User!]!
+          memberTypes: [MemberType!]!
         }
         
       `);
@@ -30,7 +36,9 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         users: () => {
           return prisma.user.findMany();
         },
-
+        memberTypes: () => {
+          return prisma.memberType.findMany();
+        },
       };
 
       return await graphql({
