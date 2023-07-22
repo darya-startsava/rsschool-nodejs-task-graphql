@@ -3,6 +3,8 @@ import { createGqlResponseSchema, gqlResponseSchema } from './schemas.js';
 import { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList } from 'graphql';
 import { User } from './types/user.js';
 import { MemberType } from './types/memberType.js';
+import { Post } from './types/post.js';
+import { Profile } from './types/profile.js';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   const { prisma } = fastify;
@@ -31,6 +33,20 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
             args: {},
             resolve: () => {
               return prisma.memberType.findMany();
+            },
+          },
+          posts: {
+            type: new GraphQLList(Post),
+            args: {},
+            resolve: () => {
+              return prisma.post.findMany();
+            },
+          },
+          profile: {
+            type: new GraphQLList(Profile),
+            args: {},
+            resolve: () => {
+              return prisma.profile.findMany();
             },
           },
         },
