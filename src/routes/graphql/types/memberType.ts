@@ -2,12 +2,16 @@ import { GraphQLObjectType, GraphQLFloat, GraphQLInt, GraphQLList } from 'graphq
 import { MemberTypeId } from './memberTypeId.js';
 import { Profile } from './profile.js';
 
-export const MemberType = new GraphQLObjectType({
+export const MemberType: GraphQLObjectType = new GraphQLObjectType({
   name: 'MemberType',
   fields: () => ({
     id: { type: MemberTypeId },
     discount: { type: GraphQLFloat },
     postsLimitPerMonth: { type: GraphQLInt },
-    profiles: { type: new GraphQLList(Profile) },
+    profiles: {
+      get type() {
+        return new GraphQLList(Profile);
+      },
+    },
   }),
 });
