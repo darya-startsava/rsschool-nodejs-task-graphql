@@ -18,6 +18,8 @@ import { MemberTypeId } from './types/memberTypeId.js';
 import { Post } from './types/post.js';
 import { Profile } from './types/profile.js';
 import { UUIDType } from './types/uuid.js';
+import depthLimit from 'graphql-depth-limit';
+import { parse, validate } from 'graphql';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   const { prisma } = fastify;
@@ -392,6 +394,12 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       });
 
       const schema = new GraphQLSchema({ query: Query, mutation: Mutation });
+
+      const validationResult = validate(schema, parse(req.body.query), [depthLimit(5)]);
+
+      if (validationResult.length) {
+        return { errors: validationResult };
+      }
 
       const result = await graphql({
         schema,
