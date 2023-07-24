@@ -158,6 +158,38 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
               return prisma.user.create({ data: args.dto });
             },
           },
+          changeUser: {
+            type: User,
+            description: 'Change user',
+            args: {
+              id: { type: new GraphQLNonNull(UUIDType) },
+              dto: {
+                type: new GraphQLNonNull(
+                  new GraphQLInputObjectType({
+                    name: 'ChangeUserInput',
+                    fields: {
+                      name: { type: GraphQLString },
+                      balance: { type: GraphQLFloat },
+                    },
+                  }),
+                ),
+              },
+            },
+            resolve: (
+              _,
+              args: {
+                id: string;
+                dto: { name: string; balance: number };
+              },
+            ) => {
+              return prisma.user.update({
+                where: {
+                  id: args.id,
+                },
+                data: args.dto,
+              });
+            },
+          },
           deleteUser: {
             type: GraphQLBoolean,
             description: 'Delete user',
@@ -192,6 +224,39 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
               return prisma.post.create({ data: args.dto });
             },
           },
+          changePost: {
+            type: Post,
+            description: 'Change post',
+            args: {
+              id: { type: new GraphQLNonNull(UUIDType) },
+              dto: {
+                type: new GraphQLNonNull(
+                  new GraphQLInputObjectType({
+                    name: 'ChangePostInput',
+                    fields: {
+                      authorId: { type: GraphQLString },
+                      content: { type: UUIDType },
+                      title: { type: UUIDType },
+                    },
+                  }),
+                ),
+              },
+            },
+            resolve: (
+              _,
+              args: {
+                id: string;
+                dto: { authorId: string; content: string; title: string };
+              },
+            ) => {
+              return prisma.post.update({
+                where: {
+                  id: args.id,
+                },
+                data: args.dto,
+              });
+            },
+          },
           deletePost: {
             type: GraphQLBoolean,
             description: 'Delete post',
@@ -209,15 +274,17 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
             description: 'Create profile',
             args: {
               dto: {
-                type: new GraphQLInputObjectType({
-                  name: 'CreateProfileInput',
-                  fields: {
-                    userId: { type: GraphQLString },
-                    memberTypeId: { type: MemberTypeId },
-                    isMale: { type: GraphQLBoolean },
-                    yearOfBirth: { type: GraphQLInt },
-                  },
-                }),
+                type: new GraphQLNonNull(
+                  new GraphQLInputObjectType({
+                    name: 'CreateProfileInput',
+                    fields: {
+                      userId: { type: GraphQLString },
+                      memberTypeId: { type: MemberTypeId },
+                      isMale: { type: GraphQLBoolean },
+                      yearOfBirth: { type: GraphQLInt },
+                    },
+                  }),
+                ),
               },
             },
             resolve: (
@@ -232,6 +299,41 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
               },
             ) => {
               return prisma.profile.create({ data: args.dto });
+            },
+          },
+          changeProfile: {
+            type: Profile,
+            description: 'Change profile',
+            args: {
+              id: { type: new GraphQLNonNull(UUIDType) },
+              dto: {
+                type: new GraphQLInputObjectType({
+                  name: 'ChangeProfileInput',
+                  fields: {
+                    memberTypeId: { type: MemberTypeId },
+                    isMale: { type: GraphQLBoolean },
+                    yearOfBirth: { type: GraphQLInt },
+                  },
+                }),
+              },
+            },
+            resolve: (
+              _,
+              args: {
+                id: string;
+                dto: {
+                  memberTypeId: string;
+                  isMale: boolean;
+                  yearOfBirth: number;
+                };
+              },
+            ) => {
+              return prisma.profile.update({
+                where: {
+                  id: args.id,
+                },
+                data: args.dto,
+              });
             },
           },
           deleteProfile: {
