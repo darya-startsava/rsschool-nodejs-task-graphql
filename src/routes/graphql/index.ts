@@ -158,6 +158,18 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
               return prisma.user.create({ data: args.dto });
             },
           },
+          deleteUser: {
+            type: GraphQLBoolean,
+            description: 'Delete user',
+            args: { id: { type: new GraphQLNonNull(UUIDType) } },
+            resolve: async (_, args: { id: string }) => {
+              await prisma.user.delete({
+                where: {
+                  id: args.id,
+                },
+              });
+            },
+          },
           createPost: {
             type: Post,
             description: 'Create post',
@@ -178,6 +190,18 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
               args: { dto: { authorId: string; content: string; title: string } },
             ) => {
               return prisma.post.create({ data: args.dto });
+            },
+          },
+          deletePost: {
+            type: GraphQLBoolean,
+            description: 'Delete post',
+            args: { id: { type: new GraphQLNonNull(UUIDType) } },
+            resolve: async (_, args: { id: string }) => {
+              await prisma.post.delete({
+                where: {
+                  id: args.id,
+                },
+              });
             },
           },
           createProfile: {
@@ -208,6 +232,18 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
               },
             ) => {
               return prisma.profile.create({ data: args.dto });
+            },
+          },
+          deleteProfile: {
+            type: GraphQLBoolean,
+            description: 'Delete profile',
+            args: { id: { type: new GraphQLNonNull(UUIDType) } },
+            resolve: async (_, args: { id: string }) => {
+              await prisma.profile.delete({
+                where: {
+                  id: args.id,
+                },
+              });
             },
           },
         },
