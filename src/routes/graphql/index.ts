@@ -6,6 +6,11 @@ import {
   GraphQLSchema,
   GraphQLList,
   GraphQLNonNull,
+  GraphQLString,
+  GraphQLFloat,
+  GraphQLInputObjectType,
+  GraphQLBoolean,
+  GraphQLInt,
 } from 'graphql';
 import { User } from './types/user.js';
 import { MemberType } from './types/memberType.js';
@@ -132,7 +137,83 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         },
       });
 
-      const schema = new GraphQLSchema({ query: Query });
+      const Mutation = new GraphQLObjectType({
+        name: 'Mutation',
+        fields: {
+          createUser: {
+            type: User,
+            description: 'Create user',
+            args: {
+              dto: {
+                type: new GraphQLInputObjectType({
+                  name: 'CreateUserInput',
+                  fields: {
+                    name: { type: GraphQLString },
+                    balance: { type: GraphQLFloat },
+                  },
+                }),
+              },
+            },
+            resolve: (_, args: { dto: { name: string; balance: number } }) => {
+              return prisma.user.create({ data: args.dto });
+            },
+          },
+          createPost: {
+            type: Post,
+            description: 'Create post',
+            args: {
+              dto: {
+                type: new GraphQLInputObjectType({
+                  name: 'CreatePostInput',
+                  fields: {
+                    authorId: { type: GraphQLString },
+                    content: { type: UUIDType },
+                    title: { type: UUIDType },
+                  },
+                }),
+              },
+            },
+            resolve: (
+              _,
+              args: { dto: { authorId: string; content: string; title: string } },
+            ) => {
+              return prisma.post.create({ data: args.dto });
+            },
+          },
+          createProfile: {
+            type: Profile,
+            description: 'Create profile',
+            args: {
+              dto: {
+                type: new GraphQLInputObjectType({
+                  name: 'CreateProfileInput',
+                  fields: {
+                    userId: { type: GraphQLString },
+                    memberTypeId: { type: MemberTypeId },
+                    isMale: { type: GraphQLBoolean },
+                    yearOfBirth: { type: GraphQLInt },
+                  },
+                }),
+              },
+            },
+            resolve: (
+              _,
+              args: {
+                dto: {
+                  userId: string;
+                  memberTypeId: string;
+                  isMale: boolean;
+                  yearOfBirth: number;
+                };
+              },
+            ) => {
+              return prisma.profile.create({ data: args.dto });
+            },
+          },
+        },
+      });
+
+      const schema = new GraphQLSchema({ query: Query, mutation: Mutation });
 
       const result = await graphql({
         schema,
