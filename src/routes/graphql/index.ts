@@ -94,7 +94,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
           },
           post: {
             type: Post,
-            description: 'Ge post by id',
+            description: 'Get post by id',
             args: { id: { type: new GraphQLNonNull(UUIDType) } },
             resolve: async (_, args: { id: string }) => {
               try {
@@ -198,6 +198,46 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
               await prisma.user.delete({
                 where: {
                   id: args.id,
+                },
+              });
+            },
+          },
+          subscribeTo: {
+            type: User,
+            description: 'Subscribe to',
+            args: {
+              userId: { type: new GraphQLNonNull(UUIDType) },
+              authorId: { type: new GraphQLNonNull(UUIDType) },
+            },
+            resolve: (_, args: { userId: string; authorId: string }) => {
+              return prisma.user.update({
+                where: {
+                  id: args.userId,
+                },
+                data: {
+                  userSubscribedTo: {
+                    create: {
+                      authorId: args.authorId,
+                    },
+                  },
+                },
+              });
+            },
+          },
+          unsubscribeFrom: {
+            type: GraphQLBoolean,
+            description: 'Unsubscribe from',
+            args: {
+              userId: { type: new GraphQLNonNull(UUIDType) },
+              authorId: { type: new GraphQLNonNull(UUIDType) },
+            },
+            resolve: async (_, args: { userId: string; authorId: string }) => {
+              await prisma.subscribersOnAuthors.delete({
+                where: {
+                  subscriberId_authorId: {
+                    subscriberId: args.userId,
+                    authorId: args.authorId,
+                  },
                 },
               });
             },
